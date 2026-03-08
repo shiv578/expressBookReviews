@@ -19,7 +19,7 @@ public_users.get('/isbn/:isbn', function (req, res) {
   .catch(err => res.status(404).json(err));
 });
 
-// Task 12: Get book details based on Author using Async/Await
+// Task 12: Get book details based on Auth
 public_users.get('/author/:author', async function (req, res) {
   const author = req.params.author;
   const bookList = Object.values(books).filter(b => b.author === author);
