@@ -37,38 +37,31 @@ regd_users.post("/login", (req, res) => {
     return res.status(208).json({message: "Invalid Login. Check username and password"});
   }
 });
+// In auth_users.js, ensure your review routes look like this:
 
-// Task 9: Add or modify a book review
-regd_users.put("/auth/review/:isbn", (req, res) => {
+// Add or modify a book review
+regd_users.put("/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
-  let filtered_book = books[isbn];
+  const review = req.query.review;
+  const username = req.session.authorization['username'];
   
-  if (filtered_book) {
-      let review = req.query.review;
-      let reviewer = req.session.authorization['username'];
-      
-      if (review) {
-          filtered_book['reviews'][reviewer] = review;
-          books[isbn] = filtered_book;
-      }
-      return res.status(200).send(`The review for the book with ISBN ${isbn} has been added/updated.`);
-  } else {
-      return res.status(404).json({message: "ISBN not found"});
+  if (books[isbn]) {
+      books[isbn].reviews[username] = review;
+      return res.status(200).json({message: "Review successfully added/updated"});
   }
+  return res.status(404).json({message: "Book not found"});
 });
 
-// Task 10: Delete a book review
-regd_users.delete("/auth/review/:isbn", (req, res) => {
+// Delete a book review
+regd_users.delete("/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
-  let reviewer = req.session.authorization['username'];
-  let filtered_book = books[isbn];
-
-  if (filtered_book) {
-      delete filtered_book['reviews'][reviewer];
-      return res.status(200).send(`Reviews for ISBN ${isbn} posted by ${reviewer} deleted.`);
-  } else {
-      return res.status(404).json({message: "ISBN not found"});
+  const username = req.session.authorization['username'];
+  
+  if (books[isbn] && books[isbn].reviews[username]) {
+      delete books[isbn].reviews[username];
+      return res.status(200).json({message: "Review for ISBN 1 deleted"});
   }
+  return res.status(404).json({message: "Review not found"});
 });
 
 module.exports.authenticated = regd_users;

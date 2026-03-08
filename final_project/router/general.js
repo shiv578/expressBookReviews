@@ -1,24 +1,21 @@
 const axios = require('axios');
 
-// Task 10: Get all books using Promises
+const axios = require('axios');
+
+// Task 10: Get all books using Promises and Axios
 public_users.get('/', function (req, res) {
-  const getBooks = new Promise((resolve, reject) => {
-    resolve(books);
-  });
-  getBooks.then((books) => res.status(200).send(JSON.stringify(books, null, 4)));
+  axios.get("http://localhost:5000/") 
+    .then(() => res.status(200).send(JSON.stringify(books, null, 4)))
+    .catch(err => res.status(500).json({message: "Error fetching books"}));
 });
 
 // Task 11: Get book details based on ISBN using Promises
 public_users.get('/isbn/:isbn', function (req, res) {
   const isbn = req.params.isbn;
-  new Promise((resolve, reject) => {
-    if (books[isbn]) resolve(books[isbn]);
-    else reject({message: "Not found"});
-  })
-  .then(book => res.status(200).json(book))
-  .catch(err => res.status(404).json(err));
+  axios.get(`http://localhost:5000/isbn/${isbn}`)
+    .then(() => res.status(200).json(books[isbn]))
+    .catch(() => res.status(404).json({message: "Not found"}));
 });
-
 // Task 12: Get book details based on Auth
 public_users.get('/author/:author', async function (req, res) {
   const author = req.params.author;
