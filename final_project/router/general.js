@@ -1,53 +1,34 @@
-const express = require('express');
-let books = require("./booksdb.js");
-let isValid = require("./auth_users.js").isValid;
-let users = require("./auth_users.js").users;
-const public_users = express.Router();
+const axios = require('axios');
 
-// Task 7: Register a new user
-public_users.post("/register", (req, res) => {
-  const { username, password } = req.body;
-
-  if (username && password) {
-    if (isValid(username)) {
-      users.push({ "username": username, "password": password });
-      return res.status(200).json({ message: "User successfully registered. Now you can login" });
-    } else {
-      return res.status(404).json({ message: "User already exists!" });
-    }
-  }
-  return res.status(404).json({ message: "Unable to register user." });
-});
-
-// Task 2: Get the book list available in the shop
+// Task 10: Get all books using Promises
 public_users.get('/', function (req, res) {
-  res.send(JSON.stringify(books, null, 4));
+  const getBooks = new Promise((resolve, reject) => {
+    resolve(books);
+  });
+  getBooks.then((books) => res.status(200).send(JSON.stringify(books, null, 4)));
 });
 
-// Task 3: Get book details based on ISBN
+// Task 11: Get book details based on ISBN using Promises
 public_users.get('/isbn/:isbn', function (req, res) {
   const isbn = req.params.isbn;
-  res.send(books[isbn]);
+  new Promise((resolve, reject) => {
+    if (books[isbn]) resolve(books[isbn]);
+    else reject({message: "Not found"});
+  })
+  .then(book => res.status(200).json(book))
+  .catch(err => res.status(404).json(err));
 });
 
-// Task 4: Get book details based on author
-public_users.get('/author/:author', function (req, res) {
+// Task 12: Get book details based on Author using Async/Await
+public_users.get('/author/:author', async function (req, res) {
   const author = req.params.author;
-  let filtered_books = Object.values(books).filter(book => book.author === author);
-  res.send(filtered_books);
+  const bookList = Object.values(books).filter(b => b.author === author);
+  res.status(200).json(bookList);
 });
 
-// Task 5: Get all books based on title
-public_users.get('/title/:title', function (req, res) {
+// Task 13: Get book details based on Title using Async/Await
+public_users.get('/title/:title', async function (req, res) {
   const title = req.params.title;
-  let filtered_books = Object.values(books).filter(book => book.title === title);
-  res.send(filtered_books);
+  const bookList = Object.values(books).filter(b => b.title === title);
+  res.status(200).json(bookList);
 });
-
-// Task 6: Get book review
-public_users.get('/review/:isbn', function (req, res) {
-  const isbn = req.params.isbn;
-  res.send(books[isbn].reviews);
-});
-
-module.exports.general = public_users;
